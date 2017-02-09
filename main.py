@@ -116,12 +116,6 @@ class AddResponse(webapp2.RequestHandler):
         # hasError = True or False
         # once you have found all the errors, send the whole string with self.redirect
 
-        #
-        # errors[key]=value
-
-
-#        params = dict(username = username,
-#                      email = email)
 
         if not valid_username(username):
             error = "That's not a valid username."
