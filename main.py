@@ -47,21 +47,21 @@ body="""
                     <td><label for="password">Password</label></td>
                     <td>
                         <input name="password" type="password"/>
-                        <span  class="var2">{1}</span>
+                        <span  class="error">{1}</span>
                     </td>
                 </tr>
                 <tr>
                     <td><label for="verify">Verify Password</label></td>
                     <td>
                         <input name="verify" type="password"/>
-                        <span  class="var3">{2}</span>
+                        <span  class="error">{2}</span>
                     </td>
                 </tr>
                 <tr>
                     <td><label for="email">Email (optional)</label></td>
                     <td>
                         <input name="email" type="email"/>
-                        <span  class="var4">{3}</span>
+                        <span  class="error">{3}</span>
                     </td>
                 </tr>
             </table>
@@ -97,49 +97,71 @@ class MainHandler(webapp2.RequestHandler):
 
         content = page_header  +  main_content   + page_footer
         self.response.write(content)
+def post(self):
+    error = False
+    username = self.request.get('username')
+    password = self.request.get('password')
+    verify = self.request.get('verify')
+    email = self.request.get('email')
+    #  self.redirect("/?var1=val1&var2=val2&")
+    # build the string first, of what goes inside redirect
+    # e.g. "/?var1=val1&var2=val2" etc
+    #build it as you find the errors (or lack of errors)
+    # "/?" + "var1=val1&" + "var2=val2&""etc
+    #track whether you have found any error
+    # hasError = True or False
+    # once you have found all the errors, send the whole string with self.redirect
 
+    #
+    # errors[key]=value
+
+
+#        params = dict(username = username,
+#                      email = email)
+
+    if not valid_username(username):
+        error = "That's not a valid username."
+        error_escaped = cgi.escape(error,quote=True)
+        self.redirect('/?var1=' + error_escaped)
+
+    if not valid_password(password):
+        error ="That wasn't a valid password."
+        error_escaped = cgi.escape(error,quote=True)
+        self.redirect('/?var2=' + error_escaped)
+    elif password != verify:
+        error = "Your passwords didn't match."
+        error_escaped = cgi.escape(error, quote=True)
+        self.redirect('/?var3=' + error_escaped)
+
+    if not valid_email(email):
+        error = "That's not a valid email."
+        error_escaped = cgi.escape(error, quote=True)
+        self.redirect('/?var4=' + error_escaped)
+
+    # if error:
+        #  error_escaped = cgi.escape(error, quote=True)
+    # else:
+        # self.redirect('/?username=' + username)
 
 
 class AddResponse(webapp2.RequestHandler):
-    def post(self):
-        error = False
-        username = self.request.get('username')
-        password = self.request.get('password')
-        verify = self.request.get('verify')
-        email = self.request.get('email')
-        #  self.redirect("/?var1=val1&var2=val2&")
-        # build the string first, of what goes inside redirect
-        # e.g. "/?var1=val1&var2=val2" etc
-        #build it as you find the errors (or lack of errors)
-        # "/?" + "var1=val1&" + "var2=val2&""etc
-        #track whether you have found any error
-        # hasError = True or False
-        # once you have found all the errors, send the whole string with self.redirect
-
-
-        if not valid_username(username):
-            error = "That's not a valid username."
-            error_escaped = cgi.escape(error,quote=True)
-            self.redirect('/?var1=' + error_escaped)
-
-        if not valid_password(password):
-            error ="That wasn't a valid password."
-            error_escaped = cgi.escape(error,quote=True)
-            self.redirect('/?var2=' + error_escaped)
-        elif password != verify:
-            error = "Your passwords didn't match."
-            error_escaped = cgi.escape(error, quote=True)
-            self.redirect('/?var3=' + error_escaped)
-
-        if not valid_email(email):
-            error = "That's not a valid email."
-            error_escaped = cgi.escape(error, quote=True)
-            self.redirect('/?var4=' + error_escaped)
-
-        if error:
-             error_escaped = cgi.escape(error, quote=True)
+    def  post(self):
+        user_name = self.request.get("username")
+        if valid_username(user_name):
+        # user_name = cgi.escape(username)
+        # build response content
+            username_element = "<strong>" + user_name + "</strong>"
+            sentence = " Welcome, " +  username_element + " !"
+            content = "<p>" + sentence + "</p>"
+            self.response.write(content)
         else:
-            self.redirect('/?username=' + username)
+            # error_escaped = cgi.escape(error,quote=True)
+            self.redirect('/?username=')
+        # username = self.request.get('username')
+        # if  valid_username(username):
+        #     self.render('welcome.html', username = username)
+        # else:
+        #     self.redirect('/?username=' + username)
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/add', AddResponse)
